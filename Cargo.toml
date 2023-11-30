@@ -1,0 +1,6 @@
+[workspace]
+resolver = "2"
+members = ["days/day*"]
+
+[workspace.dependencies]
+aoc_shared = { git = "https://github.com/dwalker109/aoc-shared" }

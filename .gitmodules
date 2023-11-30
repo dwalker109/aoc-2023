@@ -1,0 +1,4 @@
+[submodule "input"]
+	path = input
+	url = git@github.com:dwalker109/aoc-input
+	branch = aoc-2023
