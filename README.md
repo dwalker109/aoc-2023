@@ -21,3 +21,9 @@ This was a surprisingly involved first day. Is 2023 going to be hard as nails?
 It wasn't massively difficult, and maybe I'm just still asleep (I got up at 5am),
 but this took me an hour. Day 1 is usually pretty much a one liner, and this one
 wasn't.
+
+## Day 2: Cube Conundrum
+
+Mainly about parsing text. I decided not to reach for nom yet. Manually parsing it
+felt a bit grubby but tbh it worked out ok and I'm reasonably happy with what I 
+ended up with. 
