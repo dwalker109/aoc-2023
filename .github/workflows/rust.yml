@@ -31,3 +31,4 @@ jobs:
       run: |
         cargo run --release --bin day01
         cargo run --release --bin day02
+        cargo run --release --bin day03

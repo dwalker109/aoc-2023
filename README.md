@@ -27,3 +27,10 @@ wasn't.
 Mainly about parsing text. I decided not to reach for nom yet. Manually parsing it
 felt a bit grubby but tbh it worked out ok and I'm reasonably happy with what I 
 ended up with. 
+
+## Day 3: Gear Ratios
+
+A fairly standard Xy lookup type problem, made more difficult by sequences of
+some items counting as one item. I could have done some data cleanup to make this
+somewhat trivial but I went with something a bit more refined/fussy in the end. 
+There's a fair bit of code but it's OK.
