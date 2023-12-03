@@ -9,18 +9,55 @@ fn main() {
 }
 
 fn part1(input: &'static str) -> Answer {
-    let symbols = input
+    let symbols = parse_symbols(input);
+    let numbers = parse_numbers(input);
+
+    numbers
+        .iter()
+        .filter(|pn| pn.adjacents.iter().any(|xy| symbols.contains_key(xy)))
+        .map(|pn| pn.num)
+        .sum()
+}
+
+fn part2(input: &'static str) -> Answer {
+    let gears = parse_symbols(input)
+        .into_iter()
+        .filter(|(_, c)| *c == '*')
+        .collect::<HashMap<_, _>>();
+    let numbers = parse_numbers(input);
+
+    gears
+        .iter()
+        .filter_map(|(xy, _)| {
+            let pns = numbers
+                .iter()
+                .filter(|pn| pn.adjacents.contains(xy))
+                .collect::<Vec<_>>();
+
+            if pns.len() == 2 {
+                Some(pns.iter().map(|pn| pn.num).product::<usize>())
+            } else {
+                None
+            }
+        })
+        .sum()
+}
+
+fn parse_symbols(input: &str) -> HashMap<Xy, char> {
+    input
         .lines()
         .enumerate()
         .flat_map(|(y, l)| {
             l.chars().enumerate().filter_map(move |(x, c)| {
                 (!c.is_numeric() && c != '.')
-                    .then_some(Xy(x.try_into().unwrap(), y.try_into().unwrap()))
+                    .then_some((Xy(x.try_into().unwrap(), y.try_into().unwrap()), c))
             })
         })
-        .collect::<HashSet<_>>();
+        .collect()
+}
 
-    let numbers = input
+fn parse_numbers(input: &str) -> Vec<MaybePartNumber> {
+    input
         .lines()
         .enumerate()
         .flat_map(|(y, l)| {
@@ -44,11 +81,12 @@ fn part1(input: &'static str) -> Answer {
                             .iter()
                             .flat_map(|xy| xy.neighbours())
                             .collect::<HashSet<_>>();
+
                         collected.push(MaybePartNumber {
                             num: curr_val.parse().unwrap(),
-                            members: curr_seq.clone(),
                             adjacents,
                         });
+
                         curr_seq.clear();
                         curr_val.clear();
                     }
@@ -57,17 +95,7 @@ fn part1(input: &'static str) -> Answer {
 
             collected
         })
-        .collect::<Vec<_>>();
-
-    numbers
-        .iter()
-        .filter(|pn| pn.adjacents.iter().any(|xy| symbols.contains(xy)))
-        .map(|pn| pn.num)
-        .sum()
-}
-
-fn part2(input: &'static str) -> Answer {
-    todo!();
+        .collect()
 }
 
 #[derive(Eq, PartialEq, Hash, Clone, Copy)]
@@ -91,7 +119,6 @@ impl Xy {
 
 struct MaybePartNumber {
     num: usize,
-    members: Vec<Xy>,
     adjacents: HashSet<Xy>,
 }
 
@@ -106,6 +133,6 @@ mod tests {
 
     #[test]
     fn part2() {
-        assert_eq!(super::part2(INPUT), super::Answer::default());
+        assert_eq!(super::part2(INPUT), 467835);
     }
 }
