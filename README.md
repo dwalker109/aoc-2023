@@ -34,3 +34,9 @@ A fairly standard Xy lookup type problem, made more difficult by sequences of
 some items counting as one item. I could have done some data cleanup to make this
 somewhat trivial but I went with something a bit more refined/fussy in the end. 
 There's a fair bit of code but it's OK.
+
+## Day 4: Scratchcards
+
+A relaxed day, welcome after a more tricky weekend start than expected. Fairly
+straightforward comparison of lists and calculating scores. Part 2 was made a little
+more tricky with a more complicated scoring system, but probably the easiest day so far.
