@@ -40,3 +40,8 @@ There's a fair bit of code but it's OK.
 A relaxed day, welcome after a more tricky weekend start than expected. Fairly
 straightforward comparison of lists and calculating scores. Part 2 was made a little
 more tricky with a more complicated scoring system, but probably the easiest day so far.
+
+## Day 6: Wait For It
+
+Err... easiest day by far. Expected part 2 to make the stupid naive part 1 solution
+untenable, but is didn't. Completes in 20 ms. Weird, but welcome tbh. Ha!
