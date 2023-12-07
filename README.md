@@ -52,3 +52,9 @@ into ranges and eventually implemented a solution which runs in less than a mill
 
 Err... easiest day by far. Expected part 2 to make the stupid naive part 1 solution
 untenable, but is didn't. Completes in 20 ms. Weird, but welcome tbh. Ha!
+
+## Day 7: Camel Cards
+
+Again, not too tricky and ultimately satisfying. After parsing the hands into structs,
+implementing the Ord/PartialOrd traits on them makes sorting hands easy. Part two
+necessitated a few tweaks but a simple "mode" enum made those easy to implement too.
