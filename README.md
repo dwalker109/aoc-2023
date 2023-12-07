@@ -40,3 +40,10 @@ There's a fair bit of code but it's OK.
 A relaxed day, welcome after a more tricky weekend start than expected. Fairly
 straightforward comparison of lists and calculating scores. Part 2 was made a little
 more tricky with a more complicated scoring system, but probably the easiest day so far.
+
+## Day 5: If You Give A Seed A Fertilizer
+
+Well, this one was challenging. Part 1 was easy, and I actually used my part 1 to 
+bruteforce part 2 on the day, which ran for about 3 minutes and gave me the right answer!
+This wasn't good enough though, so I followed some of the Reddit advice about splitting
+into ranges and eventually implemented a solution which runs in less than a millisecond.
