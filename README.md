@@ -40,3 +40,9 @@ There's a fair bit of code but it's OK.
 A relaxed day, welcome after a more tricky weekend start than expected. Fairly
 straightforward comparison of lists and calculating scores. Part 2 was made a little
 more tricky with a more complicated scoring system, but probably the easiest day so far.
+
+## Day 7: Camel Cards
+
+Again, not too tricky and ultimately satisfying. After parsing the hands into structs,
+implementing the Ord/PartialOrd traits on them makes sorting hands easy. Part two
+necessitated a few tweaks but a simple "mode" enum made those easy to implement too.
