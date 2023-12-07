@@ -47,3 +47,8 @@ Well, this one was challenging. Part 1 was easy, and I actually used my part 1 t
 bruteforce part 2 on the day, which ran for about 3 minutes and gave me the right answer!
 This wasn't good enough though, so I followed some of the Reddit advice about splitting
 into ranges and eventually implemented a solution which runs in less than a millisecond.
+
+## Day 6: Wait For It
+
+Err... easiest day by far. Expected part 2 to make the stupid naive part 1 solution
+untenable, but is didn't. Completes in 20 ms. Weird, but welcome tbh. Ha!
