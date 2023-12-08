@@ -1,7 +1,7 @@
 use nom::bytes::complete::tag;
-use nom::character::complete::{alphanumeric1, char};
+use nom::character::complete::{alphanumeric1, char as nomchar};
 use nom::sequence::{delimited, separated_pair, tuple};
-use num_integer::{lcm, Integer};
+use num_integer::Integer;
 use std::collections::HashMap;
 
 static INPUT: &str = include_str!("../../../input/day08");
@@ -13,65 +13,24 @@ fn main() {
 }
 
 fn part1(input: &'static str) -> Answer {
-    let (mut dirs, steps) = parse(input);
-    let mut next = steps.get_key_value("AAA").unwrap();
-
-    let mut n = 0;
-    loop {
-        let (&key, &(l, r)) = next;
-
-        if key == "ZZZ" {
-            return n;
-        }
-
-        n += 1;
-        next = steps
-            .get_key_value(match dirs.next().unwrap() {
-                'L' => l,
-                'R' => r,
-                _ => panic!(),
-            })
-            .unwrap();
-    }
-
-    unreachable!()
+    let steps = parse(input);
+    steps.walk("AAA", |k| k == "ZZZ")
 }
 
 fn part2(input: &'static str) -> Answer {
-    let (mut dirs, steps) = parse(input);
-    let mut starts = steps.iter().filter(|&((&k, _))| k.ends_with('A'));
-
-    let each = starts
-        .map(|(&k, _)| {
-            let mut next = steps.get_key_value(k).unwrap();
-
-            let mut n = 0_usize;
-            loop {
-                let (&key, &(l, r)) = next;
-
-                if key.ends_with('Z') {
-                    return n;
-                }
-
-                n += 1;
-                next = steps
-                    .get_key_value(match dirs.next().unwrap() {
-                        'L' => l,
-                        'R' => r,
-                        _ => panic!(),
-                    })
-                    .unwrap();
-            }
-        })
-        .collect::<Vec<_>>();
-
-    each.into_iter().reduce(|acc, curr| curr.lcm(&acc)).unwrap()
+    let steps = parse(input);
+    steps
+        .1
+        .iter()
+        .filter_map(|(&k, _)| k.ends_with('A').then_some(k))
+        .map(|k| steps.walk(k, |k| k.ends_with('Z')))
+        .reduce(|acc, curr| curr.lcm(&acc))
+        .unwrap()
 }
 
-fn parse(input: &str) -> (impl Iterator<Item = char> + '_, HashMap<&str, (&str, &str)>) {
+fn parse(input: &'static str) -> Steps {
     let (dirs, steps) = input.split_once("\n\n").unwrap();
 
-    let dirs = dirs.chars().cycle();
     let steps = steps
         .lines()
         .map(|l| {
@@ -79,9 +38,9 @@ fn parse(input: &str) -> (impl Iterator<Item = char> + '_, HashMap<&str, (&str, 
                 alphanumeric1::<_, nom::error::Error<_>>,
                 tag(" = "),
                 delimited(
-                    char('('),
+                    nomchar('('),
                     separated_pair(alphanumeric1, tag(", "), alphanumeric1),
-                    char(')'),
+                    nomchar(')'),
                 ),
             ))(l)
             .unwrap();
@@ -89,7 +48,40 @@ fn parse(input: &str) -> (impl Iterator<Item = char> + '_, HashMap<&str, (&str, 
         })
         .collect::<HashMap<_, _>>();
 
-    (dirs, steps)
+    Steps(dirs.chars().collect(), steps)
+}
+
+struct Steps(
+    Vec<char>,
+    HashMap<&'static str, (&'static str, &'static str)>,
+);
+
+impl Steps {
+    fn walk(&self, start_from: &str, at_end: fn(&str) -> bool) -> usize {
+        let mut dirs = self.0.iter().cycle();
+        let mut next = self.1.get_key_value(start_from).unwrap();
+
+        let mut n = 0_usize;
+
+        loop {
+            let (&key, &(l, r)) = next;
+
+            if at_end(key) {
+                return n;
+            }
+
+            n += 1;
+
+            next = self
+                .1
+                .get_key_value(match dirs.next().unwrap() {
+                    'L' => l,
+                    'R' => r,
+                    _ => panic!(),
+                })
+                .unwrap();
+        }
+    }
 }
 
 #[cfg(test)]

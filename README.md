@@ -58,3 +58,12 @@ untenable, but is didn't. Completes in 20 ms. Weird, but welcome tbh. Ha!
 Again, not too tricky and ultimately satisfying. After parsing the hands into structs,
 implementing the Ord/PartialOrd traits on them makes sorting hands easy. Part two
 necessitated a few tweaks but a simple "mode" enum made those easy to implement too.
+
+## Day 8: Haunted Wasteland
+
+A maths one. I find these a bit frustrating because my maths is waaaaaaaay to weak to
+work out patterns like the one required here - LCM. Part 1 was fine, and my part 2 was
+a reasonable extension of that, but it never completes because you really need the maths
+trick to do it. I had to look at hints, which feels cheap. I used a lib to calculate LCM
+because I'd just be copying an impl verbatim anyway, and this is probably what I'd do
+in the real world tbh.
