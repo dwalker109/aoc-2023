@@ -1,6 +1,7 @@
 use nom::bytes::complete::tag;
 use nom::character::complete::{alphanumeric1, char};
 use nom::sequence::{delimited, separated_pair, tuple};
+use num_integer::{lcm, Integer};
 use std::collections::HashMap;
 
 static INPUT: &str = include_str!("../../../input/day08");
@@ -37,7 +38,34 @@ fn part1(input: &'static str) -> Answer {
 }
 
 fn part2(input: &'static str) -> Answer {
-    todo!()
+    let (mut dirs, steps) = parse(input);
+    let mut starts = steps.iter().filter(|&((&k, _))| k.ends_with('A'));
+
+    let each = starts
+        .map(|(&k, _)| {
+            let mut next = steps.get_key_value(k).unwrap();
+
+            let mut n = 0_usize;
+            loop {
+                let (&key, &(l, r)) = next;
+
+                if key.ends_with('Z') {
+                    return n;
+                }
+
+                n += 1;
+                next = steps
+                    .get_key_value(match dirs.next().unwrap() {
+                        'L' => l,
+                        'R' => r,
+                        _ => panic!(),
+                    })
+                    .unwrap();
+            }
+        })
+        .collect::<Vec<_>>();
+
+    each.into_iter().reduce(|acc, curr| curr.lcm(&acc)).unwrap()
 }
 
 fn parse(input: &str) -> (impl Iterator<Item = char> + '_, HashMap<&str, (&str, &str)>) {
