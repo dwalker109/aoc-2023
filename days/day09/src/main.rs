@@ -9,53 +9,37 @@ fn main() {
 }
 
 fn part1(input: &'static str) -> Answer {
-    let vals = input
-        .lines()
-        .map(|l| {
-            l.split_ascii_whitespace()
-                .filter_map(|n| n.parse::<isize>().ok())
-                .collect::<Vec<_>>()
+    to_sequences(input)
+        .iter()
+        .map(|s| {
+            s.iter()
+                .map(|l| l.last().unwrap().to_owned())
+                .rfold(0, |prev, curr| prev + curr)
         })
-        .collect::<Vec<_>>();
-
-    vals.into_iter()
-        .map(|seq| {
-            let mut to_zero = vec![seq.clone()];
-
-            while to_zero.last().unwrap().iter().any(|n| *n != 0) {
-                let next =
-                    to_zero
-                        .last()
-                        .unwrap()
-                        .array_windows::<2>()
-                        .fold(vec![], |mut acc, [l, r]| {
-                            acc.push(r - l);
-                            acc
-                        });
-
-                to_zero.push(next);
-            }
-
-            let finals = to_zero.into_iter().map(|l| l.last().unwrap().to_owned());
-
-            finals.rfold(0, |prev, curr| prev + curr)
+        .sum()
+}
+fn part2(input: &'static str) -> Answer {
+    to_sequences(input)
+        .iter()
+        .map(|s| {
+            s.iter()
+                .map(|l| l.first().unwrap().to_owned())
+                .rfold(0, |prev, curr| curr - prev)
         })
         .sum()
 }
 
-fn part2(input: &'static str) -> Answer {
-    let vals = input
+fn to_sequences(input: &str) -> Vec<Vec<Vec<isize>>> {
+    input
         .lines()
         .map(|l| {
             l.split_ascii_whitespace()
                 .filter_map(|n| n.parse::<isize>().ok())
                 .collect::<Vec<_>>()
         })
-        .collect::<Vec<_>>();
-
-    vals.into_iter()
         .map(|seq| {
-            let mut to_zero = vec![seq.clone()];
+            let mut to_zero = vec![seq];
+            to_zero.reserve(to_zero[0].len());
 
             while to_zero.last().unwrap().iter().any(|n| *n != 0) {
                 let next =
@@ -68,14 +52,12 @@ fn part2(input: &'static str) -> Answer {
                             acc
                         });
 
-                to_zero.push(next);
+                to_zero.push(next)
             }
 
-            let finals = to_zero.into_iter().map(|l| l.first().unwrap().to_owned());
-
-            finals.rfold(0, |prev, curr| curr - prev)
+            to_zero
         })
-        .sum()
+        .collect()
 }
 
 #[cfg(test)]

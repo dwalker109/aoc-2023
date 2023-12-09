@@ -67,3 +67,11 @@ a reasonable extension of that, but it never completes because you really need t
 trick to do it. I had to look at hints, which feels cheap. I used a lib to calculate LCM
 because I'd just be copying an impl verbatim anyway, and this is probably what I'd do
 in the real world tbh.
+
+## Day 9: Mirage Maintenance
+
+Ultimately, a fairly straightforward business of mapping/folding number sequences.
+I wasted a fair bit of time going from test to real input, because I was calculating
+*absolute* differences, not *relative* differences. Once I fixed that it was plain
+sailing. Part 2 was incredibly simple. My code is a bit janky but it runs fast
+so meh.
