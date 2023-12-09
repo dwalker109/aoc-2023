@@ -9,73 +9,42 @@ fn main() {
 }
 
 fn part1(input: &'static str) -> Answer {
-    let vals = input
-        .lines()
-        .map(|l| {
-            l.split_ascii_whitespace()
-                .filter_map(|n| n.parse::<isize>().ok())
-                .collect::<Vec<_>>()
-        })
-        .collect::<Vec<_>>();
-
-    vals.into_iter()
-        .map(|seq| {
-            let mut to_zero = vec![seq.clone()];
-
-            while to_zero.last().unwrap().iter().any(|n| *n != 0) {
-                let next =
-                    to_zero
-                        .last()
-                        .unwrap()
-                        .array_windows::<2>()
-                        .fold(vec![], |mut acc, [l, r]| {
-                            acc.push(r - l);
-                            acc
-                        });
-
-                to_zero.push(next);
-            }
-
-            let finals = to_zero.into_iter().map(|l| l.last().unwrap().to_owned());
-
-            finals.rfold(0, |prev, curr| prev + curr)
-        })
+    to_sequences(input)
+        .iter()
+        .map(|s| s.iter().rfold(0, |prev, [_, max]| prev + max))
+        .sum()
+}
+fn part2(input: &'static str) -> Answer {
+    to_sequences(input)
+        .iter()
+        .map(|s| s.iter().rfold(0, |prev, [min, _]| min - prev))
         .sum()
 }
 
-fn part2(input: &'static str) -> Answer {
-    let vals = input
+fn to_sequences(input: &str) -> Vec<Vec<[isize; 2]>> {
+    input
         .lines()
         .map(|l| {
             l.split_ascii_whitespace()
                 .filter_map(|n| n.parse::<isize>().ok())
                 .collect::<Vec<_>>()
         })
-        .collect::<Vec<_>>();
+        .map(|mut seq| {
+            let mut results = Vec::with_capacity(seq.len());
+            results.push([*seq.first().unwrap(), *seq.last().unwrap()]);
 
-    vals.into_iter()
-        .map(|seq| {
-            let mut to_zero = vec![seq.clone()];
+            while seq.iter().any(|n| *n != 0) {
+                seq = seq.array_windows::<2>().fold(vec![], |mut acc, [l, r]| {
+                    acc.push(r - l);
+                    acc
+                });
 
-            while to_zero.last().unwrap().iter().any(|n| *n != 0) {
-                let next =
-                    to_zero
-                        .last()
-                        .unwrap()
-                        .array_windows::<2>()
-                        .fold(vec![], |mut acc, [l, r]| {
-                            acc.push(r - l);
-                            acc
-                        });
-
-                to_zero.push(next);
+                results.push([*seq.first().unwrap(), *seq.last().unwrap()]);
             }
 
-            let finals = to_zero.into_iter().map(|l| l.first().unwrap().to_owned());
-
-            finals.rfold(0, |prev, curr| curr - prev)
+            results
         })
-        .sum()
+        .collect()
 }
 
 #[cfg(test)]
