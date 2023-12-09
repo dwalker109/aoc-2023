@@ -44,7 +44,38 @@ fn part1(input: &'static str) -> Answer {
 }
 
 fn part2(input: &'static str) -> Answer {
-    todo!();
+    let vals = input
+        .lines()
+        .map(|l| {
+            l.split_ascii_whitespace()
+                .filter_map(|n| n.parse::<isize>().ok())
+                .collect::<Vec<_>>()
+        })
+        .collect::<Vec<_>>();
+
+    vals.into_iter()
+        .map(|seq| {
+            let mut to_zero = vec![seq.clone()];
+
+            while to_zero.last().unwrap().iter().any(|n| *n != 0) {
+                let next =
+                    to_zero
+                        .last()
+                        .unwrap()
+                        .array_windows::<2>()
+                        .fold(vec![], |mut acc, [l, r]| {
+                            acc.push(r - l);
+                            acc
+                        });
+
+                to_zero.push(next);
+            }
+
+            let finals = to_zero.into_iter().map(|l| l.first().unwrap().to_owned());
+
+            finals.rfold(0, |prev, curr| curr - prev)
+        })
+        .sum()
 }
 
 #[cfg(test)]
@@ -58,6 +89,6 @@ mod tests {
 
     #[test]
     fn part2() {
-        assert_eq!(super::part2(INPUT), super::Answer::default());
+        assert_eq!(super::part2(INPUT), 2);
     }
 }
