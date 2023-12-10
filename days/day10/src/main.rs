@@ -10,11 +10,12 @@ fn main() {
 
 fn part1(input: &'static str) -> Answer {
     let map = Map::from(input);
-    map.loop_len() / 2
+    map.main_loop.len() / 2
 }
 
 fn part2(input: &'static str) -> Answer {
-    todo!();
+    let map = Map::from(input);
+    map.count_inner()
 }
 
 #[derive(Eq, PartialEq, Hash, Clone, Copy)]
@@ -38,40 +39,34 @@ impl Xy {
 }
 
 #[derive(Clone, Copy)]
-enum Pipe {
+enum Tile {
     VerticalNorthSouth,
     HorizontalEastWest,
     BendNorthEast,
     BendNorthWest,
     BendSouthWest,
     BendSouthEast,
-    Unknown,
-    //     | is a vertical pipe connecting north and south.
-    // - is a horizontal pipe connecting east and west.
-    // L is a 90-degree bend connecting north and east.
-    // J is a 90-degree bend connecting north and west.
-    // 7 is a 90-degree bend connecting south and west.
-    // F is a 90-degree bend connecting south and east.
+    Start,
+    Empty,
 }
 
-impl TryFrom<char> for Pipe {
-    type Error = ();
-
-    fn try_from(value: char) -> Result<Self, Self::Error> {
+impl From<char> for Tile {
+    fn from(value: char) -> Self {
         match value {
-            '|' => Ok(Self::VerticalNorthSouth),
-            '-' => Ok(Self::HorizontalEastWest),
-            'L' => Ok(Self::BendNorthEast),
-            'J' => Ok(Self::BendNorthWest),
-            '7' => Ok(Self::BendSouthWest),
-            'F' => Ok(Self::BendSouthEast),
-            'S' => Ok(Self::Unknown),
-            _ => Err(()),
+            '|' => Self::VerticalNorthSouth,
+            '-' => Self::HorizontalEastWest,
+            'L' => Self::BendNorthEast,
+            'J' => Self::BendNorthWest,
+            '7' => Self::BendSouthWest,
+            'F' => Self::BendSouthEast,
+            'S' => Self::Start,
+            '.' => Self::Empty,
+            _ => panic!(),
         }
     }
 }
 
-impl Pipe {
+impl Tile {
     fn edges(&self, &Xy(x, y): &Xy) -> [Xy; 2] {
         match self {
             Self::VerticalNorthSouth => [Xy(x, y - 1), Xy(x, y + 1)],
@@ -84,9 +79,10 @@ impl Pipe {
         }
     }
 
-    fn connects(pos: &Xy, edges: &[(&Xy, &Pipe)]) -> Self {
+    fn connects(pos: &Xy, edges: &[(&Xy, &Tile)]) -> Self {
         let candidates = edges
             .iter()
+            .filter(|(_, t)| !matches!(t, Tile::Empty))
             .filter_map(|&(xy, p)| {
                 let [a, b] = p.edges(xy);
                 (a == *pos || b == *pos).then_some(*xy)
@@ -114,11 +110,24 @@ impl Pipe {
 
         *interconnect
     }
+
+    fn should_flip(&self, last: &Tile) -> bool {
+        match self {
+            Tile::VerticalNorthSouth => true, // |
+
+            Tile::BendSouthWest if matches!(last, Tile::BendSouthEast) => false, // F - 7
+            Tile::BendSouthWest if matches!(last, Tile::BendNorthEast) => true,  // F -J
+            Tile::BendNorthWest if matches!(last, Tile::BendSouthEast) => true,  // L - 7
+            Tile::BendNorthWest if matches!(last, Tile::BendNorthEast) => false, // L -J
+
+            _ => false,
+        }
+    }
 }
 
 struct Map {
-    pipes: HashMap<Xy, Pipe>,
-    start: Xy,
+    pipes: HashMap<Xy, Tile>,
+    main_loop: HashMap<Xy, Tile>,
 }
 
 impl From<&str> for Map {
@@ -127,17 +136,18 @@ impl From<&str> for Map {
             .lines()
             .enumerate()
             .flat_map(|(y, l)| {
-                l.chars().enumerate().filter_map(move |(x, c)| {
-                    Pipe::try_from(c)
-                        .map(|p| (Xy(x.try_into().unwrap(), y.try_into().unwrap()), p))
-                        .ok()
+                l.chars().enumerate().map(move |(x, c)| {
+                    (
+                        Xy(x.try_into().unwrap(), y.try_into().unwrap()),
+                        Tile::from(c),
+                    )
                 })
             })
             .collect();
 
         let (&start, _) = pipes
             .iter()
-            .find(|(_, p)| matches!(p, Pipe::Unknown))
+            .find(|(_, p)| matches!(p, Tile::Start))
             .unwrap();
 
         let neighbours = &start.neighbouring();
@@ -145,39 +155,59 @@ impl From<&str> for Map {
             .iter()
             .filter(|&(l_xy, _)| neighbours.contains(l_xy))
             .collect::<Vec<_>>();
-        let connector = Pipe::connects(&start, &surrounding);
+        let connector = Tile::connects(&start, &surrounding);
 
         *pipes.get_mut(&start).unwrap() = connector;
 
-        Self { pipes, start }
-    }
-}
-
-impl Map {
-    fn loop_len(&self) -> usize {
-        let mut len = 0;
-
-        let mut curr_pos = self.start;
-        let mut curr_pipe = *self.pipes.get(&curr_pos).unwrap();
+        let mut curr_pos = start;
+        let mut curr_pipe = *pipes.get(&curr_pos).unwrap();
         let mut prev_pos = *curr_pipe.edges(&curr_pos).first().unwrap();
+        let mut main_loop = HashMap::new();
 
         loop {
+            main_loop.insert(curr_pos, curr_pipe);
+
             let next_pos = *curr_pipe
                 .edges(&curr_pos)
                 .iter()
                 .find(|&e| *e != prev_pos)
                 .unwrap();
-            let next_pipe = *self.pipes.get(&next_pos).unwrap();
+            let next_pipe = *pipes.get(&next_pos).unwrap();
 
             (prev_pos, curr_pos) = (curr_pos, next_pos);
             curr_pipe = next_pipe;
 
-            len += 1;
-
-            if curr_pos == self.start {
-                return len;
+            if curr_pos == start {
+                break;
             }
         }
+
+        Self { pipes, main_loop }
+    }
+}
+
+impl Map {
+    fn count_inner(&self) -> usize {
+        let mut count = 0;
+
+        for y in 0..self.pipes.iter().max_by_key(|(xy, _)| xy.1).unwrap().0 .1 {
+            let mut last_dir = Tile::Empty;
+            let mut inner = false;
+            for x in 0..self.pipes.iter().max_by_key(|(xy, _)| xy.0).unwrap().0 .0 {
+                if let Some(t) = self.main_loop.get(&Xy(x, y)) {
+                    if t.should_flip(&last_dir) {
+                        inner = !inner;
+                    }
+                    if !matches!(t, Tile::HorizontalEastWest) {
+                        last_dir = *t;
+                    }
+                } else if inner {
+                    count += 1;
+                }
+            }
+        }
+
+        count
     }
 }
 
@@ -185,6 +215,7 @@ impl Map {
 mod tests {
     static INPUT_A: &str = include_str!("../input_test_a");
     static INPUT_B: &str = include_str!("../input_test_b");
+    static INPUT_C: &str = include_str!("../input_test_c");
 
     #[test]
     fn part1() {
@@ -194,7 +225,6 @@ mod tests {
 
     #[test]
     fn part2() {
-        assert_eq!(super::part2(INPUT_A), super::Answer::default());
-        assert_eq!(super::part2(INPUT_B), super::Answer::default());
+        assert_eq!(super::part2(INPUT_C), 4);
     }
 }
