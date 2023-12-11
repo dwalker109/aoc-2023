@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 aoc_shared = { workspace = true }
 itertools = { workspace = true }
+rustc-hash = "1.1.0"

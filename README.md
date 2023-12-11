@@ -75,3 +75,13 @@ I wasted a fair bit of time going from test to real input, because I was calcula
 *absolute* differences, not *relative* differences. Once I fixed that it was plain
 sailing. Part 2 was incredibly simple. My code is a bit janky but it runs fast
 so meh.
+
+## Day 11: Cosmic Expansion
+
+Should have been simple. Part 1 I completed nicely in about an hour, and I used
+an offset approach for co-ordinates (rather than mapping out all the emptiness
+in memory) mainly because it seemed nicer. Turns out that is exactly what part 2
+needed. However, I lost far more time than I would like to admit in working out
+why part 1 passed and part 2 didn't. Turns out I was ADDING the empty space I needed
+all along, not REPLACING it. Once I fixed that we're good. There's a lot of HashMap
+lookups in a hot loop so I used FxHashMap to get the speed down to about 4ms per part.
