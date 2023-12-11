@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use std::collections::{BTreeSet, HashMap};
+use rustc_hash::{FxHashMap, FxHashSet};
 
 static INPUT: &str = include_str!("../../../input/day11");
 
@@ -36,20 +36,20 @@ fn calc(input: &str, factor: usize) -> Answer {
         .sum()
 }
 
-fn offsets(input: &str, rate: usize) -> (HashMap<usize, usize>, HashMap<usize, usize>) {
+fn offsets(input: &str, rate: usize) -> (FxHashMap<usize, usize>, FxHashMap<usize, usize>) {
     let width = input.lines().next().unwrap().chars().count();
     let height = input.lines().count();
 
     let col_skip = width + 1; // Account for the EOL
     let offsets_x = (0..col_skip)
         .filter(|&x| input.chars().skip(x).step_by(col_skip).all(|c| c == '.'))
-        .collect::<BTreeSet<_>>();
+        .collect::<FxHashSet<_>>();
 
     let offsets_y = input
         .lines()
         .enumerate()
         .filter_map(|(y, l)| l.chars().all(|c| c == '.').then_some(y))
-        .collect::<BTreeSet<_>>();
+        .collect::<FxHashSet<_>>();
 
     let offsets_x = (0..width)
         .map(|x| {
@@ -68,7 +68,7 @@ fn offsets(input: &str, rate: usize) -> (HashMap<usize, usize>, HashMap<usize, u
     (offsets_x, offsets_y)
 }
 
-fn parse(input: &str) -> HashMap<usize, (usize, usize)> {
+fn parse(input: &str) -> FxHashMap<usize, (usize, usize)> {
     input
         .lines()
         .enumerate()
@@ -78,7 +78,7 @@ fn parse(input: &str) -> HashMap<usize, (usize, usize)> {
                 .filter_map(move |(x, c)| (c == '#').then_some((x, y)))
         })
         .enumerate()
-        .collect::<HashMap<_, _>>()
+        .collect::<FxHashMap<_, _>>()
 }
 
 #[cfg(test)]
