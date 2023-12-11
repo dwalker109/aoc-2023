@@ -111,15 +111,14 @@ impl Tile {
         *interconnect
     }
 
-    fn should_flip(&self, last: &Tile) -> bool {
+    fn is_boundary_wall(&self) -> bool {
         match self {
-            Tile::VerticalNorthSouth => true, // |
-
-            Tile::BendSouthWest if matches!(last, Tile::BendSouthEast) => false, // F - 7
-            Tile::BendSouthWest if matches!(last, Tile::BendNorthEast) => true,  // F -J
-            Tile::BendNorthWest if matches!(last, Tile::BendSouthEast) => true,  // L - 7
-            Tile::BendNorthWest if matches!(last, Tile::BendNorthEast) => false, // L -J
-
+            // Per row, only the |, F and 7 wall segments denote a cross between "inner" and "outer".
+            // | is a regular wall, easy. F is opening a wall, 7 is closing it. That's all we need
+            // to care about. I originally got this working with a horrible hacky and complicated
+            // set of comparisons, but https://www.reddit.com/r/adventofcode/comments/18evyu9/2023_day_10_solutions
+            // helped me clean it up and understand it better.
+            Tile::VerticalNorthSouth | Tile::BendSouthEast | Tile::BendSouthWest => true,
             _ => false,
         }
     }
@@ -128,10 +127,16 @@ impl Tile {
 struct Map {
     pipes: HashMap<Xy, Tile>,
     main_loop: HashMap<Xy, Tile>,
+    width_height: (usize, usize),
 }
 
 impl From<&str> for Map {
     fn from(raw: &str) -> Self {
+        let width_height = (
+            raw.lines().next().unwrap().chars().count(),
+            raw.lines().count(),
+        );
+
         let mut pipes: HashMap<_, _> = raw
             .lines()
             .enumerate()
@@ -182,7 +187,11 @@ impl From<&str> for Map {
             }
         }
 
-        Self { pipes, main_loop }
+        Self {
+            pipes,
+            main_loop,
+            width_height,
+        }
     }
 }
 
@@ -190,16 +199,12 @@ impl Map {
     fn count_inner(&self) -> usize {
         let mut count = 0;
 
-        for y in 0..self.pipes.iter().max_by_key(|(xy, _)| xy.1).unwrap().0 .1 {
-            let mut last_dir = Tile::Empty;
+        for y in 0..self.width_height.1 {
             let mut inner = false;
-            for x in 0..self.pipes.iter().max_by_key(|(xy, _)| xy.0).unwrap().0 .0 {
-                if let Some(t) = self.main_loop.get(&Xy(x, y)) {
-                    if t.should_flip(&last_dir) {
+            for x in 0..self.width_height.0 {
+                if let Some(t) = self.main_loop.get(&Xy(x as isize, y as isize)) {
+                    if t.is_boundary_wall() {
                         inner = !inner;
-                    }
-                    if !matches!(t, Tile::HorizontalEastWest) {
-                        last_dir = *t;
                     }
                 } else if inner {
                     count += 1;
@@ -216,6 +221,7 @@ mod tests {
     static INPUT_A: &str = include_str!("../input_test_a");
     static INPUT_B: &str = include_str!("../input_test_b");
     static INPUT_C: &str = include_str!("../input_test_c");
+    static INPUT_D: &str = include_str!("../input_test_d");
 
     #[test]
     fn part1() {
@@ -226,5 +232,6 @@ mod tests {
     #[test]
     fn part2() {
         assert_eq!(super::part2(INPUT_C), 4);
+        assert_eq!(super::part2(INPUT_D), 10);
     }
 }

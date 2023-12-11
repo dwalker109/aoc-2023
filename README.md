@@ -75,3 +75,15 @@ I wasted a fair bit of time going from test to real input, because I was calcula
 *absolute* differences, not *relative* differences. Once I fixed that it was plain
 sailing. Part 2 was incredibly simple. My code is a bit janky but it runs fast
 so meh.
+
+## Day 10: Pipe Maze
+
+This was torrid. Part 1 I managed in an hour or two, and I was pleased with myself,
+Working out the right pipe segment was challenging and satisfying. And then part 2.
+This was a nightmare. I drew a blank, checked Reddit for hints and learned that a 
+line by line single scan would allow you to work this out. *Most* of this was obvious
+from looking at the sample data (walls flipping between inner and outer states) but
+getting the corners right was nasty trial and error and I didn't understand why it eventually
+worked. After submitting my answer I looked into this more and found some decent 
+explanations, which I have included in the source as a reminder. It also turns out 
+I made an error in one of my sample inputs, which made it all much harder.
