@@ -6,11 +6,19 @@ static INPUT: &str = include_str!("../../../input/day11");
 type Answer = usize;
 
 fn main() {
-    aoc_shared::runner::solve(|| part1(INPUT), || part2(INPUT))
+    aoc_shared::runner::solve(|| part1(INPUT, 2), || part2(INPUT, 1000000))
 }
 
-fn part1(input: &'static str) -> Answer {
-    let (offset_x, offset_y) = offsets(input);
+fn part1(input: &'static str, factor: usize) -> Answer {
+    calc(input, factor)
+}
+
+fn part2(input: &'static str, factor: usize) -> Answer {
+    calc(input, factor)
+}
+
+fn calc(input: &str, factor: usize) -> Answer {
+    let (offset_x, offset_y) = offsets(input, factor);
     let starchart = parse(input);
 
     starchart
@@ -23,16 +31,12 @@ fn part1(input: &'static str) -> Answer {
             let (ax, ay) = (offset_x[&ax], offset_y[&ay]);
             let (bx, by) = (offset_x[&bx], offset_y[&by]);
 
-            (ax.abs_diff(bx)) + ay.abs_diff(by)
+            ax.abs_diff(bx) + ay.abs_diff(by)
         })
         .sum()
 }
 
-fn part2(input: &'static str) -> Answer {
-    todo!();
-}
-
-fn offsets(input: &str) -> (HashMap<usize, usize>, HashMap<usize, usize>) {
+fn offsets(input: &str, rate: usize) -> (HashMap<usize, usize>, HashMap<usize, usize>) {
     let width = input.lines().next().unwrap().chars().count();
     let height = input.lines().count();
 
@@ -50,14 +54,14 @@ fn offsets(input: &str) -> (HashMap<usize, usize>, HashMap<usize, usize>) {
     let offsets_x = (0..width)
         .map(|x| {
             let o = offsets_x.iter().filter(|&v| *v < x).count();
-            (x, x + o)
+            (x, x + (o * rate) - o)
         })
         .collect();
 
     let offsets_y = (0..height)
         .map(|y| {
             let o = offsets_y.iter().filter(|&v| *v < y).count();
-            (y, y + o)
+            (y, y + (o * rate) - o)
         })
         .collect();
 
@@ -83,11 +87,11 @@ mod tests {
 
     #[test]
     fn part1() {
-        assert_eq!(super::part1(INPUT), 374);
+        assert_eq!(super::part1(INPUT, 2), 374);
     }
 
     #[test]
     fn part2() {
-        assert_eq!(super::part2(INPUT), super::Answer::default());
+        assert_eq!(super::part2(INPUT, 100), 8410);
     }
 }
