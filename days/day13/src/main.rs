@@ -7,50 +7,37 @@ fn main() {
 }
 
 fn part1(input: &'static str) -> Answer {
-    let imgs = parse(input);
-
-    imgs.iter()
-        .filter_map(|(c, r)| {
-            find_perfect_reflection(c, 0).or_else(|| find_perfect_reflection(r, 0).map(|n| n * 100))
-        })
-        .sum()
+    travel(input, 0)
 }
 
 fn part2(input: &'static str) -> Answer {
-    let imgs = parse(input);
+    travel(input, 1)
+}
 
-    imgs.iter()
+fn parse(input: &str) -> impl Iterator<Item = (Vec<Vec<&u8>>, Vec<Vec<&u8>>)> {
+    input.split("\n\n").map(|e| {
+        let width = e.lines().next().unwrap().chars().count();
+        let col_step = width + 1;
+        let cols = (0..width)
+            .map(|x| e.as_bytes().iter().skip(x).step_by(col_step).collect())
+            .collect();
+
+        let rows = e.lines().map(|l| l.as_bytes().iter().collect()).collect();
+
+        (cols, rows)
+    })
+}
+
+fn travel(input: &str, smudge: usize) -> Answer {
+    parse(input)
         .filter_map(|(c, r)| {
-            let c = find_perfect_reflection(c, 1)
-                .or_else(|| find_perfect_reflection(r, 1).map(|n| n * 100));
-
-            if c.is_none() {
-                dbg!(c, r);
-            }
-
-            c
+            find_perfect_reflection(&c, smudge)
+                .or_else(|| find_perfect_reflection(&r, smudge).map(|n| n * 100))
         })
         .sum()
 }
 
-fn parse(input: &str) -> Vec<(Vec<Vec<char>>, Vec<Vec<char>>)> {
-    input
-        .split("\n\n")
-        .map(|e| {
-            let width = e.lines().next().unwrap().chars().count();
-            let col_step = width + 1;
-            let cols = (0..width)
-                .map(|x| e.chars().skip(x).step_by(col_step).collect())
-                .collect();
-
-            let rows = e.lines().map(|l| l.chars().collect()).collect();
-
-            (cols, rows)
-        })
-        .collect()
-}
-
-fn find_perfect_reflection(img: &[Vec<char>], smudge: usize) -> Option<usize> {
+fn find_perfect_reflection(img: &[Vec<&u8>], smudge: usize) -> Option<usize> {
     let max_n = img.len() - 1;
 
     for n in 1..=max_n {
@@ -72,8 +59,7 @@ fn find_perfect_reflection(img: &[Vec<char>], smudge: usize) -> Option<usize> {
                     smudge_remaining -= 1;
                     return true;
                 }
-
-                false
+                return false;
             });
 
             match is_match {

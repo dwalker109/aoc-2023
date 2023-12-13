@@ -97,3 +97,9 @@ needed. However, I lost far more time than I would like to admit in working out
 why part 1 passed and part 2 didn't. Turns out I was ADDING the empty space I needed
 all along, not REPLACING it. Once I fixed that we're good. There's a lot of HashMap
 lookups in a hot loop so I used FxHashMap to get the speed down to about 4ms per part.
+
+## Day 13: Point of Incidence
+
+Pretty simple. Part 1 came together in not much time, part 2 is not much more. 
+Got the runtime down to less that half a millisecond by avoiding collections and
+working with byte refs. Trying to use bitvecs made no difference so scrapped that.
