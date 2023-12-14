@@ -41,5 +41,6 @@ jobs:
         cargo run --release --bin day10
         cargo run --release --bin day11
         cargo run --release --bin day13
+        cargo run --release --bin day14
         cargo run --release --bin day15
         cargo run --release --bin day16

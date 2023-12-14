@@ -104,6 +104,15 @@ Pretty simple. Part 1 came together in not much time, part 2 is not much more.
 Got the runtime down to less that half a millisecond by avoiding collections and
 working with byte refs. Trying to use bitvecs made no difference so scrapped that.
 
+## Day 14: Parabolic Reflector Dish
+
+A cycle detection problem, similar to the Tetris nightmare from 2022. That one 
+prepared me though and I didn't find this one too bad. Actually figuring out the 
+whole modulo things to decide how far to fast-forward I had to poke at until it
+worked, but I pretty much intuited it this time which was satisfying. My initial
+impl was incredibly slow though, taking 30 seconds to complete on an M1 MacBook Pro.
+After optimising it runs in under a second, which is fast enough for now.
+
 ## Day 15: Lens Library
 
 A pleasant, straightforward, follow the steps kinda day. The hardest thing about this
