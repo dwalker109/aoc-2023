@@ -103,3 +103,10 @@ lookups in a hot loop so I used FxHashMap to get the speed down to about 4ms per
 Pretty simple. Part 1 came together in not much time, part 2 is not much more. 
 Got the runtime down to less that half a millisecond by avoiding collections and
 working with byte refs. Trying to use bitvecs made no difference so scrapped that.
+
+## Day 15: Lens Library
+
+A pleasant, straightforward, follow the steps kinda day. The hardest thing about this
+one was following the text and realising that the `dbg!` output and RustRover debugger
+both present slightly confusing information about `VecDeque`. Plus a few small bugs
+about text parsing which made it seem trickier that it was. Runs very fast though.
