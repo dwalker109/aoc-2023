@@ -1,7 +1,6 @@
-#![feature(let_chains)]
-
+use rayon::prelude::*;
 use std::collections::{HashMap, HashSet, VecDeque};
-use std::ops::{Range, RangeInclusive};
+use std::ops::RangeInclusive;
 
 static INPUT: &str = include_str!("../../../input/day16");
 
@@ -13,18 +12,66 @@ fn main() {
 
 fn part1(input: &'static str) -> Answer {
     let mut g = parse(input);
+    g.beams.push_front(Beam {
+        dir: Dir::Right,
+        pos: Xy(0, 0),
+    });
     g.simulate();
     g.energised.len()
 }
 
 fn part2(input: &'static str) -> Answer {
-    todo!();
+    let src = parse(input);
+
+    let mut vert = Vec::new();
+    for x in src.x_range.clone() {
+        let mut g1 = src.clone();
+        g1.beams.push_front(Beam {
+            dir: Dir::Down,
+            pos: Xy(x, 0),
+        });
+        let mut g2 = src.clone();
+        g2.beams.push_front(Beam {
+            dir: Dir::Up,
+            pos: Xy(x, *src.y_range.end()),
+        });
+
+        vert.push(g1);
+        vert.push(g2);
+    }
+
+    let mut hor = Vec::new();
+    for y in src.y_range.clone() {
+        let mut g1 = src.clone();
+        g1.beams.push_front(Beam {
+            dir: Dir::Right,
+            pos: Xy(0, y),
+        });
+        let mut g2 = src.clone();
+        g2.beams.push_front(Beam {
+            dir: Dir::Left,
+            pos: Xy(*src.x_range.end(), y),
+        });
+
+        hor.push(g1);
+        hor.push(g2);
+    }
+
+    vert.par_iter_mut()
+        .chain(hor.par_iter_mut())
+        .map(|g| {
+            g.simulate();
+            g.energised.len()
+        })
+        .max()
+        .unwrap()
 }
 
 fn parse(input: &str) -> Grid {
     Grid::from(input)
 }
 
+#[derive(Clone)]
 struct Grid {
     tiles: HashMap<Xy, Tile>,
     beams: VecDeque<Beam>,
@@ -49,10 +96,7 @@ impl From<&str> for Grid {
         let x_range = 0..=(tiles.iter().max_by_key(|(pos, _)| pos.0).unwrap().0 .0);
         let y_range = 0..=(tiles.iter().max_by_key(|(pos, _)| pos.1).unwrap().0 .1);
 
-        let beams = VecDeque::from(vec![Beam {
-            dir: Dir::Right,
-            pos: Xy(0, 0),
-        }]);
+        let beams = VecDeque::new();
 
         let energised = HashSet::with_capacity(tiles.len());
 
@@ -77,9 +121,9 @@ impl Grid {
                     self.energised.insert(b.pos);
                 }
 
-                let t = self.tiles.get(&b.pos).unwrap();
+                let tile = self.tiles.get(&b.pos).unwrap();
 
-                match t.interact(&b.dir) {
+                match tile.next_dirs(&b.dir) {
                     (next_dir, None) => {
                         if let Some(next_xy) = b.next_xy(&next_dir, &self.x_range, &self.y_range) {
                             b.dir = next_dir;
@@ -122,6 +166,7 @@ enum Dir {
     Right,
 }
 
+#[derive(Clone)]
 enum Tile {
     Space,
     MirrorRight,
@@ -144,7 +189,7 @@ impl From<char> for Tile {
 }
 
 impl Tile {
-    pub fn interact(&self, beam_dir: &Dir) -> (Dir, Option<Dir>) {
+    pub fn next_dirs(&self, beam_dir: &Dir) -> (Dir, Option<Dir>) {
         match self {
             Tile::Space => (*beam_dir, None),
             Tile::MirrorRight => match beam_dir {
@@ -173,6 +218,7 @@ impl Tile {
     }
 }
 
+#[derive(Clone)]
 struct Beam {
     dir: Dir,
     pos: Xy,
@@ -213,6 +259,6 @@ mod tests {
 
     #[test]
     fn part2() {
-        assert_eq!(super::part2(INPUT), super::Answer::default());
+        assert_eq!(super::part2(INPUT), 51);
     }
 }
