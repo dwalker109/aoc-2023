@@ -110,3 +110,12 @@ A pleasant, straightforward, follow the steps kinda day. The hardest thing about
 one was following the text and realising that the `dbg!` output and RustRover debugger
 both present slightly confusing information about `VecDeque`. Plus a few small bugs
 about text parsing which made it seem trickier that it was. Runs very fast though.
+
+## Day 16: The Floor Will Be Lava
+
+This day really ended up being a painful chore, but it wasn't even difficult. Read 
+the steps, write some path following code, easy. I had most of it written in an hour.
+But I then spent the next 5 hours debugging an incredibly silly bug which failed on
+real input, but not the tests. I eventually rewrote the path following and it all
+fell into place. Part 2 was just a brute force, and with Rayon deployed takes about
+100ms. My code is kinda smelly but I'm done with this one.
