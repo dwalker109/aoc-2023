@@ -128,3 +128,15 @@ But I then spent the next 5 hours debugging an incredibly silly bug which failed
 real input, but not the tests. I eventually rewrote the path following and it all
 fell into place. Part 2 was just a brute force, and with Rayon deployed takes about
 100ms. My code is kinda smelly but I'm done with this one.
+
+## Day 18: Lavaduct Lagoon
+
+Part 1 is a naive walk the steps and flood fill, which I (along with everybody else)
+was skillfully misdirected into because of some super important hex colour data stored
+with it. I kept it as is for posterity, Part 2 then revealed itself as a planet scale 
+geometry problem, far too big to brute force. I decided to use the `geo` crate instead 
+of writing this myself, which seemed like a much more fun approach than copying an 
+algorithm off the internet. It worked really well, though I did need help in adding 
+the final piece of the puzzle (appending some missing area data which comes from the 
+fact that our area calculation isn't working on a 1 unit wide trench, but rather a 
+zero area set of lines).
