@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 aoc_shared = { workspace = true }
+geo = "0.27"
+nom = "7.1"
