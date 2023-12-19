@@ -1,5 +1,3 @@
-
-
 static INPUT: &str = include_str!("../../../input/day19");
 
 type Answer = usize;
@@ -27,17 +25,7 @@ fn part2(input: &'static str) -> Answer {
     let rules = parse(input);
     let mut accepted = Vec::new();
 
-    run_wf(
-        &rules,
-        &mut accepted,
-        "in",
-        Data {
-            x: 1..=4000,
-            m: 1..=4000,
-            a: 1..=4000,
-            s: 1..=4000,
-        },
-    );
+    run_wf(&rules, &mut accepted, "in", Data::new());
 
     accepted.iter().map(|d| d.tot()).sum()
 }
