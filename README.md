@@ -140,3 +140,12 @@ algorithm off the internet. It worked really well, though I did need help in add
 the final piece of the puzzle (appending some missing area data which comes from the 
 fact that our area calculation isn't working on a 1 unit wide trench, but rather a 
 zero area set of lines).
+
+## Day 19: Aplenty
+
+Thoroughly enjoyable day. Messed around with closures rather than enums for my rule
+processing logic mainly for giggles, since enums probably would have meant for less
+type gore. Part 2 built on the range narrowing we did in day 5 really well, so I 
+enjoyed that one (even tracking down the small off by 1 introduced errors). I ended
+up with a totally separate implementation for part 2, since while I probably could 
+have adapted it into one solver, I wrote it discretely and will leave it like that.

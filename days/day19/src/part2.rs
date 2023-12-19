@@ -104,13 +104,13 @@ pub fn parse(input: &'static str) -> HashMap<&'static str, Vec<Callback>> {
                                 _ => unimplemented!(),
                             };
 
-                            let (a, b) = (match prop {
+                            let (a, b) = match prop {
                                 'x' => (Data { x: a, ..d.clone() }, Data { x: b, ..d.clone() }),
                                 'm' => (Data { m: a, ..d.clone() }, Data { m: b, ..d.clone() }),
                                 'a' => (Data { a: a, ..d.clone() }, Data { a: b, ..d.clone() }),
                                 's' => (Data { s: a, ..d.clone() }, Data { s: b, ..d.clone() }),
                                 _ => unimplemented!(),
-                            });
+                            };
 
                             (Outcome::Forward(lbl, a), Some(Outcome::Next(b)))
                         }))
@@ -127,14 +127,12 @@ pub fn parse(input: &'static str) -> HashMap<&'static str, Vec<Callback>> {
         )(input)
     }
 
-    let rules = rules
+    rules
         .lines()
         .map(|l| {
             let (_input, (label, r)) = rules_wrapper(l).unwrap();
             let (_, rules) = raw_rules(r).unwrap();
             (label, rules)
         })
-        .collect::<HashMap<_, _>>();
-
-    rules
+        .collect::<HashMap<_, _>>()
 }

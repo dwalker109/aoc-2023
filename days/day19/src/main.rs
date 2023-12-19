@@ -1,4 +1,4 @@
-use crate::part2::Data;
+
 
 static INPUT: &str = include_str!("../../../input/day19");
 
