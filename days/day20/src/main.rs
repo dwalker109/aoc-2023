@@ -1,8 +1,6 @@
-use crate::ipc::{Queue, Repo};
+use crate::ipc::Repo;
 use crate::module::{Broadcast, Button, Communicate, Conjunction, FlipFlop, ModId};
 use std::collections::HashMap;
-use std::thread::sleep;
-use std::time::Duration;
 
 static INPUT: &str = include_str!("../../../input/day20");
 
@@ -13,27 +11,21 @@ fn main() {
 }
 
 fn part1(input: &'static str) -> Answer {
-    let (mut repo, mut queue) = parse(input);
+    let mut repo = parse(input);
 
-    repo.push_the_button();
+    (0..1000).for_each(|_| repo.push_the_button());
 
-    repo.cleanup();
-    queue.drain(&mut repo);
-    queue.sent_product()
+    repo.lo_qty * repo.hi_qty
 }
 
 fn part2(input: &'static str) -> Answer {
     todo!();
 }
 
-fn parse(input: &str) -> (Repo, Queue) {
-    let queue = Queue::new();
-
+fn parse(input: &str) -> Repo {
     let mut items = HashMap::<ModId, Box<dyn Communicate>>::new();
-    items.insert(
-        "button".into(),
-        Box::new(Button::new(queue.sender.clone().unwrap())),
-    );
+
+    items.insert("button".into(), Box::new(Button::new()));
 
     for l in input.lines() {
         let (id, dest) = l.split_once("->").unwrap();
@@ -46,12 +38,12 @@ fn parse(input: &str) -> (Repo, Queue) {
         match id.chars().next().unwrap() {
             'b' => {
                 let id = id.trim().to_string();
-                let m = Broadcast::new(id.clone(), dest, queue.sender.clone().unwrap());
+                let m = Broadcast::new(id.clone(), dest);
                 items.insert(id, Box::new(m));
             }
             '%' => {
                 let id = id.strip_prefix('%').unwrap().trim().to_string();
-                let m = FlipFlop::new(id.clone(), dest, queue.sender.clone().unwrap());
+                let m = FlipFlop::new(id.clone(), dest);
                 items.insert(id, Box::new(m));
             }
             '&' => {
@@ -60,7 +52,14 @@ fn parse(input: &str) -> (Repo, Queue) {
                 let mem_src = input
                     .lines()
                     .filter_map(|l| {
-                        let (mem_id, dest) = l.split_once("->").unwrap();
+                        let (mut mem_id, dest) = l.split_once("->").unwrap();
+
+                        mem_id = mem_id.trim();
+
+                        if mem_id.chars().next().unwrap().is_ascii_punctuation() {
+                            mem_id = &mem_id[1..];
+                        }
+
                         dest.trim()
                             .split(", ")
                             .any(|dest_id| dest_id == &id)
@@ -68,19 +67,14 @@ fn parse(input: &str) -> (Repo, Queue) {
                     })
                     .collect::<Vec<ModId>>();
 
-                let m = Conjunction::new(
-                    id.clone(),
-                    dest,
-                    queue.sender.clone().unwrap().clone(),
-                    &mem_src,
-                );
+                let m = Conjunction::new(id.clone(), dest, &mem_src);
                 items.insert(id, Box::new(m));
             }
             _ => unimplemented!(),
         }
     }
 
-    (Repo::new(items), queue)
+    Repo::new(items)
 }
 
 mod ipc;
@@ -88,15 +82,17 @@ mod module;
 
 #[cfg(test)]
 mod tests {
-    static INPUT: &str = include_str!("../input_test_1");
+    static INPUT_1: &str = include_str!("../input_test_1");
+    static INPUT_2: &str = include_str!("../input_test_2");
 
     #[test]
     fn part1() {
-        assert_eq!(super::part1(INPUT), 36);
+        assert_eq!(super::part1(INPUT_1), 32000000);
+        assert_eq!(super::part1(INPUT_2), 11687500);
     }
 
     #[test]
     fn part2() {
-        assert_eq!(super::part2(INPUT), super::Answer::default());
+        assert_eq!(super::part2(INPUT_1), super::Answer::default());
     }
 }
