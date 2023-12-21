@@ -8,7 +8,7 @@ pub(crate) trait Communicate {
         }
     }
 
-    fn rcv(&mut self, queue: &mut VecDeque<(Pulse, ModId, ModId)>, pulse: Pulse, from: &ModId) {
+    fn rcv(&mut self, _queue: &mut VecDeque<(Pulse, ModId, ModId)>, _pulse: Pulse, _from: &ModId) {
         eprintln!("Receiving is a no-op by default!");
     }
 
@@ -67,7 +67,6 @@ impl Communicate for FlipFlop {
 
 pub struct Conjunction {
     id: ModId,
-    state: State,
     dest: Vec<ModId>,
     mem: HashMap<ModId, Pulse>,
 }
@@ -76,7 +75,6 @@ impl Conjunction {
     pub fn new(id: ModId, dest: Vec<ModId>, mem_src: &[ModId]) -> Self {
         Self {
             id,
-            state: State::Off,
             dest,
             mem: mem_src.iter().map(|&id| (id, Pulse::Low)).collect(),
         }
@@ -115,7 +113,7 @@ impl Broadcast {
 }
 
 impl Communicate for Broadcast {
-    fn rcv(&mut self, queue: &mut VecDeque<(Pulse, ModId, ModId)>, pulse: Pulse, from: &ModId) {
+    fn rcv(&mut self, queue: &mut VecDeque<(Pulse, ModId, ModId)>, pulse: Pulse, _from: &ModId) {
         self.send(queue, pulse)
     }
 

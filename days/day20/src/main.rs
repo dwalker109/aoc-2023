@@ -62,7 +62,7 @@ fn parse(input: &'static str) -> Repo {
                     }
                 }
 
-                let m = Conjunction::new(id.clone(), dest, &mem_src);
+                let m = Conjunction::new(id, dest, &mem_src);
                 items.insert(id, Box::new(m));
             }
             _ => unimplemented!(),
@@ -88,6 +88,6 @@ mod tests {
 
     #[test]
     fn part2() {
-        assert_eq!(super::part2(INPUT_1), super::Answer::default());
+        println!("part 2 only works on real input, no test");
     }
 }

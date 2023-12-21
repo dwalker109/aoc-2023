@@ -149,3 +149,13 @@ type gore. Part 2 built on the range narrowing we did in day 5 really well, so I
 enjoyed that one (even tracking down the small off by 1 introduced errors). I ended
 up with a totally separate implementation for part 2, since while I probably could 
 have adapted it into one solver, I wrote it discretely and will leave it like that.
+
+## Day 20: Pulse Propagation
+
+Mixed feelings about this one. Set up a load of modules implementing a trait, which 
+worked really well for part 1 (once I stopped trying to use mpsc channels and just
+went for a VecDequeue based impl). Part 2 involved finding a LCM, and while I 
+was fairly sure straight away that is what I would be looking for, I couldn't
+figure out what I was looking for. After looking at the hints I found a solution
+very quickly, and it was pretty simple.
+
