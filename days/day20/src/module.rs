@@ -1,11 +1,10 @@
 use crate::ipc::*;
 use std::collections::{HashMap, VecDeque};
-use std::sync::mpsc::Sender;
 
 pub(crate) trait Communicate {
     fn send(&self, queue: &mut VecDeque<(Pulse, ModId, ModId)>, pulse: Pulse) {
         for to_id in self.dest() {
-            queue.push_back((pulse, self.id().clone(), to_id.clone()));
+            queue.push_back((pulse, self.id(), to_id));
         }
     }
 
@@ -23,7 +22,7 @@ enum State {
     Off,
 }
 
-pub type ModId = String;
+pub type ModId = &'static str;
 
 pub struct FlipFlop {
     id: ModId,
@@ -79,7 +78,7 @@ impl Conjunction {
             id,
             state: State::Off,
             dest,
-            mem: mem_src.iter().map(|id| (id.clone(), Pulse::Low)).collect(),
+            mem: mem_src.iter().map(|&id| (id, Pulse::Low)).collect(),
         }
     }
 }

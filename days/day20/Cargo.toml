@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 aoc_shared = { workspace = true }
+num-integer = "0.1.45"
